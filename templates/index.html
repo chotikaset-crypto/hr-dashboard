@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Analytics Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen">
+    <div class="p-6 max-w-7xl mx-auto">
+        <header class="flex justify-between items-center mb-8 border-b border-slate-800 pb-4">
+            <div>
+                <h1 class="text-2xl font-bold text-white"><i class="fa-solid text-indigo-500 mr-2 fa-users-gear"></i>HR Management Dashboard</h1>
+                <p class="text-slate-400 text-sm">ระบบจัดการและวิเคราะห์ข้อมูลบุคลากร</p>
+            </div>
+            <div>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 mr-2 animate-pulse"></span> Flask Active
+                </span>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-slate-800/60 border border-slate-700/50 rounded-xl p-4">
+                <p class="text-slate-400 text-sm">พนักงานทั้งหมด</p>
+                <h3 class="text-2xl font-bold mt-1 text-indigo-400">5 คน</h3>
+            </div>
+            <div class="bg-slate-800/60 border border-slate-700/50 rounded-xl p-4">
+                <p class="text-slate-400 text-sm">สถานะ Active</p>
+                <h3 class="text-2xl font-bold mt-1 text-emerald-400">4 คน</h3>
+            </div>
+            <div class="bg-slate-800/60 border border-slate-700/50 rounded-xl p-4">
+                <p class="text-slate-400 text-sm">เงินเดือนเฉลี่ย</p>
+                <h3 class="text-2xl font-bold mt-1 text-amber-400">฿61,000</h3>
+            </div>
+            <div class="bg-slate-800/60 border border-slate-700/50 rounded-xl p-4">
+                <p class="text-slate-400 text-sm">Performance เฉลี่ย</p>
+                <h3 class="text-2xl font-bold mt-1 text-purple-400">4.40 / 5.0</h3>
+            </div>
+        </div>
+
+        <div class="bg-slate-800/40 border border-slate-700/50 rounded-xl p-5 backdrop-blur-sm">
+            <h2 class="text-lg font-semibold mb-4 text-slate-200">รายชื่อพนักงาน</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-300">
+                    <thead class="text-xs uppercase bg-slate-800 text-slate-400 border-b border-slate-700">
+                        <tr>
+                            <th class="py-3 px-4">รหัส</th>
+                            <th class="py-3 px-4">ชื่อ-นามสกุล</th>
+                            <th class="py-3 px-4">ตำแหน่ง</th>
+                            <th class="py-3 px-4">แผนก</th>
+                            <th class="py-3 px-4">สถานะ</th>
+                            <th class="py-3 px-4 text-right">เงินเดือน</th>
+                            <th class="py-3 px-4 text-center">Performance</th>
+                        </tr>
+                    </thead>
+                    <tbody id="emp-table-body" class="divide-y divide-slate-800"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchEmployees() {
+            try {
+                const response = await fetch('/api/employees');
+                const data = await response.json();
+                renderTable(data);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function renderTable(employees) {
+            const tbody = document.getElementById('emp-table-body');
+            tbody.innerHTML = '';
+            employees.forEach(emp => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-slate-800/50 transition-colors';
+                row.innerHTML = `
+                    <td class="py-3 px-4 font-mono text-xs text-indigo-400">${emp.id}</td>
+                    <td class="py-3 px-4 font-medium text-white">${emp.name}</td>
+                    <td class="py-3 px-4">${emp.position}</td>
+                    <td class="py-3 px-4"><span class="px-2 py-0.5 text-xs bg-slate-700 rounded text-slate-300">${emp.department}</span></td>
+                    <td class="py-3 px-4">
+                        <span class="px-2 py-0.5 text-xs rounded-full ${emp.status === 'Active' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'}">
+                            ${emp.status}
+                        </span>
+                    </td>
+                    <td class="py-3 px-4 text-right font-mono">฿${emp.salary.toLocaleString()}</td>
+                    <td class="py-3 px-4 text-center font-bold text-indigo-400">${emp.performance}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        document.addEventListener('DOMContentLoaded', fetchEmployees);
+    </script>
+</body>
+</html>
